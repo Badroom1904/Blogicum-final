@@ -55,7 +55,7 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = CommentForm()  
+        context['form'] = CommentForm()
         context['comments'] = self.object.comments.all()
         return context
 
@@ -112,7 +112,6 @@ class ProfileView(DetailView):
                 pub_date__lte=timezone.now(),
                 category__is_published=True
             )
-
 
         paginator = Paginator(posts, 10)
         page_number = self.request.GET.get('page')
