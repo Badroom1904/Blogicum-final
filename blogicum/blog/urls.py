@@ -4,6 +4,11 @@ from . import views
 
 app_name = 'blog'
 
+password_done_view = auth_views.PasswordChangeDoneView.as_view(
+    template_name='registration/password_change_done.html'
+)
+
+
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     path('posts/<int:pk>/', views.PostDetailView.as_view(),
@@ -29,7 +34,6 @@ urlpatterns = [
     path('auth/password_change/', auth_views.PasswordChangeView.as_view(
         template_name='registration/password_change_form.html'
     ), name='password_change'),
-    path('auth/password_change/done/', auth_views.PasswordChangeDoneView.as_view(
-        template_name='registration/password_change_done.html'
-    ), name='password_change_done'),
+    path('auth/password_change/done/',
+         password_done_view, name='password_change_done'),
 ]

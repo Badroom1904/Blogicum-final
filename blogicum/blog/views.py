@@ -25,21 +25,23 @@ class CommentForm(forms.ModelForm):
 
 class IndexView(ListView):
     """Главная страница - 10 последних опубликованных постов с пагинацией"""
+
     model = Post
     template_name = 'blog/index.html'
     context_object_name = 'posts'
-    paginate_by = 10  # Добавляем пагинацию
+    paginate_by = 10
 
     def get_queryset(self):
         return Post.objects.select_related('category').filter(
             pub_date__lte=timezone.now(),
             is_published=True,
             category__is_published=True
-        ).order_by('-pub_date')  # Сортировка от новых к старым
+        ).order_by('-pub_date')
 
 
 class PostDetailView(DetailView):
     """Страница отдельной публикации"""
+
     model = Post
     template_name = 'blog/detail.html'
     context_object_name = 'post'
@@ -53,14 +55,14 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Передаем форму для комментария и список комментариев
-        context['form'] = CommentForm()  # ← ВОЗВРАЩАЕМ ФОРМУ!
+        context['form'] = CommentForm()  
         context['comments'] = self.object.comments.all()
         return context
 
 
 class CategoryPostsView(ListView):
     """Страница категории с пагинацией"""
+
     template_name = 'blog/category.html'
     context_object_name = 'post_list'
     paginate_by = 10  # Добавляем пагинацию
@@ -90,6 +92,7 @@ class UserRegistrationView(CreateView):
 
 class ProfileView(DetailView):
     """Страница профиля пользователя"""
+
     model = User
     template_name = 'blog/profile.html'
     context_object_name = 'profile'
@@ -100,11 +103,9 @@ class ProfileView(DetailView):
         context = super().get_context_data(**kwargs)
         user = self.object
 
-        # Публикации пользователя
         posts = Post.objects.filter(author=user).select_related('category',
                                                                 'location')
 
-        # Если пользователь не автор, показываем только опубликованные
         if self.request.user != user:
             posts = posts.filter(
                 is_published=True,
@@ -112,7 +113,7 @@ class ProfileView(DetailView):
                 category__is_published=True
             )
 
-        # Добавляем пагинацию (10 постов на страницу)
+
         paginator = Paginator(posts, 10)
         page_number = self.request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -124,40 +125,39 @@ class ProfileView(DetailView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     """Создание нового поста"""
+
     model = Post
     template_name = 'blog/create.html'
     fields = ['title', 'text', 'pub_date', 'category', 'location', 'image']
 
     def form_valid(self, form):
-        # Автоматически назначаем автором текущего пользователя
         form.instance.author = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self):
-        # Редирект на страницу профиля пользователя после успешного создания
         return reverse('blog:profile', kwargs={'username':
                                                self.request.user.username})
 
 
 class ProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     """Редактирование профиля пользователя"""
+
     model = User
     template_name = 'blog/user.html'  # Используем существующий шаблон
     fields = ['first_name', 'last_name', 'username', 'email']
     success_message = "Профиль успешно обновлен"
 
     def get_object(self, queryset=None):
-        # Возвращаем текущего пользователя
         return self.request.user
 
     def get_success_url(self):
-        # Редирект на страницу профиля после успешного редактирования
         return reverse('blog:profile', kwargs={'username':
                                                self.request.user.username})
 
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
     """Добавление комментария"""
+
     form_class = CommentForm
     template_name = 'blog/detail.html'
 
@@ -171,9 +171,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
                                                    self.kwargs['post_id']})
 
     def get_context_data(self, **kwargs):
-        # Получаем контекст от родительского класса
         context = super().get_context_data(**kwargs)
-        # Добавляем пост и комментарии в контекст
         post = get_object_or_404(Post, pk=self.kwargs['post_id'])
         context['post'] = post
         context['comments'] = post.comments.all()
@@ -182,6 +180,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
 class CommentUpdateView(LoginRequiredMixin, UpdateView):
     """Редактирование комментария"""
+
     form_class = CommentForm  # Используем нашу форму
     template_name = 'blog/comment.html'
 
@@ -194,12 +193,12 @@ class CommentUpdateView(LoginRequiredMixin, UpdateView):
 
 class PostUpdateView(LoginRequiredMixin, UpdateView):
     """Редактирование публикации"""
+
     model = Post
     template_name = 'blog/create.html'
     fields = ['title', 'text', 'pub_date', 'category', 'location', 'image']
 
     def get_queryset(self):
-        # Разрешаем редактировать только свои посты
         return Post.objects.filter(author=self.request.user)
 
     def get_success_url(self):
@@ -208,12 +207,12 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
 
 class PostDeleteView(LoginRequiredMixin, DeleteView):
     """Удаление публикации"""
+
     model = Post
-    template_name = 'blog/create.html'  # Используем тот же шаблон
+    template_name = 'blog/create.html'
     context_object_name = 'post'
 
     def get_queryset(self):
-        # Разрешаем удалять только свои посты
         return Post.objects.filter(author=self.request.user)
 
     def get_success_url(self):
@@ -223,11 +222,11 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
 
 class CommentDeleteView(LoginRequiredMixin, DeleteView):
     """Удаление комментария"""
+
     model = Comment
-    template_name = 'blog/comment.html'  # Шаблон для подтверждения удаления
+    template_name = 'blog/comment.html'
 
     def get_queryset(self):
-        # Разрешаем удалять только свои комментарии
         return Comment.objects.filter(author=self.request.user)
 
     def get_success_url(self):
@@ -235,11 +234,12 @@ class CommentDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['post'] = self.object.post  # Передаем пост для шаблона
+        context['post'] = self.object.post
         return context
 
 
 class CustomPasswordChangeView(PasswordChangeView):
     """Кастомная страница смены пароля"""
+
     template_name = 'registration/password_change_form.html'
     success_url = reverse_lazy('blog:password_change_done')
