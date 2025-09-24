@@ -103,8 +103,8 @@ class ProfileView(DetailView):
         context = super().get_context_data(**kwargs)
         user = self.object
 
-        posts = Post.objects.filter(author=user).select_related('category',
-                                                                'location')
+        posts = Post.objects.filter(author=user).select_related(
+            'category', 'location').order_by('-pub_date')
 
         if self.request.user != user:
             posts = posts.filter(
@@ -113,12 +113,12 @@ class ProfileView(DetailView):
                 category__is_published=True
             )
 
+        # Добавляем пагинацию (10 постов на страницу)
         paginator = Paginator(posts, 10)
         page_number = self.request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
         context['page_obj'] = page_obj
-        context['posts'] = page_obj.object_list  # На всякий случай дублируем
         return context
 
 
