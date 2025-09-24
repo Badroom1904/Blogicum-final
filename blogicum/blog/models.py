@@ -72,9 +72,9 @@ class Post(PublishedModel):
     )
     image = models.ImageField(
         'Изображения',
-        upload_to = 'posts_image/',
-        blank = True,
-        null = True
+        upload_to='posts_image/',
+        blank=True,
+        null=True
     )
 
     class Meta:
@@ -86,9 +86,10 @@ class Post(PublishedModel):
     def __str__(self):
         return self.title
 
+
 class Comment(models.Model):
     """Модель для комментариев к публикациям."""
-    
+
     text = models.TextField('Текст комментария')
     post = models.ForeignKey(
         Post,
@@ -101,7 +102,8 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Автор комментария'
     )
-    created_at = models.DateTimeField('Дата и время создания комментария', auto_now_add=True)
+    created_at = models.DateTimeField('Дата и время создания комментария',
+                                      auto_now_add=True)
 
     class Meta:
         verbose_name = 'комментарий'
