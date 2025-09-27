@@ -1,6 +1,5 @@
 from django.db import models
 from core.models import PublishedModel, Clearpublished
-# Импортируем встроенную модель пользователя
 from django.contrib.auth import get_user_model
 User = get_user_model()
 MAX_LENGTH = 256
@@ -108,7 +107,7 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
-        ordering = ['created_at']  # Сортировка по времени (старые → новые)
+        ordering = ['created_at']  
 
     def __str__(self):
         return f'Комментарий {self.author} к посту {self.post.id}'

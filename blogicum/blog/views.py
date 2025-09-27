@@ -65,7 +65,7 @@ class CategoryPostsView(ListView):
 
     template_name = 'blog/category.html'
     context_object_name = 'post_list'
-    paginate_by = 10  # Добавляем пагинацию
+    paginate_by = 10
 
     def get_queryset(self):
         category = get_object_or_404(Category,
@@ -142,7 +142,7 @@ class ProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     """Редактирование профиля пользователя"""
 
     model = User
-    template_name = 'blog/user.html'  # Используем существующий шаблон
+    template_name = 'blog/user.html'
     fields = ['first_name', 'last_name', 'username', 'email']
     success_message = "Профиль успешно обновлен"
 
@@ -180,7 +180,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 class CommentUpdateView(LoginRequiredMixin, UpdateView):
     """Редактирование комментария"""
 
-    form_class = CommentForm  # Используем нашу форму
+    form_class = CommentForm
     template_name = 'blog/comment.html'
 
     def get_queryset(self):
